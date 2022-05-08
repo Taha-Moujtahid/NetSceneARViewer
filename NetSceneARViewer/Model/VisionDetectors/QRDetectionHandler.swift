@@ -67,8 +67,9 @@ struct QRDetectionHandler : VisionDetector {
                 
                 let arAnchor = ARAnchor(name: "PlantNode", transform: hitTestResult.worldTransform)
                 let anchor = AnchorEntity(anchor: arAnchor)
-                print(PlantNode.scene!)
-                anchor.addChild(PlantNode.scene!)
+                
+                //anchor.addChild(PlantNode.scene!)
+                
                 NetSceneARView.arView.scene.addAnchor(anchor)
                 NetSceneARView.arView.session.add(anchor: arAnchor)
                 

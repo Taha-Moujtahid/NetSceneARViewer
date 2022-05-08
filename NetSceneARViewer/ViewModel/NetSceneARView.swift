@@ -25,15 +25,35 @@ struct NetSceneARView: UIViewRepresentable {
         NetSceneARView.arView.session.run(config)
         NetSceneARView.arViewDelegate.configure()
         NetSceneARView.arViewDelegate.registerDetectors()
-        ARScene.loadMainAsync(completion: { result in
+        
+        Experience.loadMainAsync(completion: { result in
             if let scene = try? result.get() {
                 PlantNode.scene = scene
+                
+                generateCollisionShapes(for: PlantNode.scene!)
+                
                 PlantNode.sceneLoaded = true
             }else{
                 print("could not load PlantScene")
             }
         })
+        
+        
         return NetSceneARView.arView
+    }
+    
+    func generateCollisionShapes(for plantEntity: RealityKit.Entity){
+        
+        //Last child gets the collision shape
+        if(plantEntity.children.isEmpty){
+            plantEntity.generateCollisionShapes(recursive: true)
+        }
+        
+        plantEntity.children.filter({ child in
+            child.name != "Model"
+        }).forEach { child in
+            generateCollisionShapes(for: child)
+        }
     }
     
     func updateUIView(_ uiView: ARView, context: Context) {}
@@ -70,6 +90,19 @@ class ARViewDelegate : NSObject, ARSessionDelegate {
         var uiPlaneAnchor = AnchorEntity()
         uiPlaneAnchor.addChild(UIPlane)
         arView!.scene.addAnchor(uiPlaneAnchor)
+        
+        arView!.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:))))
+    }
+    
+    @objc func handleTap(_ sender: UITapGestureRecognizer? = nil) {
+        if let tapGesture = sender {
+            let location = tapGesture.location(in: arView)
+            print(location)
+            if let entity = arView!.entity(at: location) {
+                print(entity)
+            }
+            
+        }
     }
     
     func renderUI(){
@@ -91,7 +124,12 @@ class ARViewDelegate : NSObject, ARSessionDelegate {
     
     func registerDetectors(){
         detectors.append(QRDetectionHandler())
-        //TODO: ADD HAND DETECTION detectors.append(HandDetectionHandler())
+        detectors.append(HandDetectionHandler())
+        
+        HandPosePositions.shared.grabHandler = { [self] in
+            print(arView?.entity(at: HandPosePositions.shared.thumbTip)?.name)
+            print("grab")
+        }
         
         Task(){
             while(true){
@@ -115,13 +153,17 @@ class ARViewDelegate : NSObject, ARSessionDelegate {
     func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
         print("anchor \(anchors.first) added")
         
-        /*if(anchors.first!.name == "PlantNode"){
+        /* HINZUFÜGEN DER STRANGGIEßANLAGE
+         
+         if(anchors.first!.name == "PlantNode"){
             let anchor = AnchorEntity(anchor: anchors.first!)
-            anchor.addChild(PlantNode.modelEntity)
+            anchor.addChild(PlantNode.scene!)
             NetSceneARView.arView.scene.addAnchor(anchor)
         }*/
         
-        /*for anchor in anchors {
+        /* LADEN VON 3D OBJEKTEN AUS DEM INTERTNET (URL KANN VERÄNDERT WERDEN)
+         
+         for anchor in anchors {
             Task {
                 await SCNScene.loadFromUrl(URL(string: "http://netscene.bytesentertainment.de/uploads/cup_saucer_set_d28cb8cd36.usdz?updated_at=2022-01-20T13:56:11.162Z")!) { scene in
                     if let scene = scene {
@@ -145,11 +187,13 @@ class ARViewDelegate : NSObject, ARSessionDelegate {
         }*/
         
         
-        /*
+        /* HINZUFÜGEN DES AR VIDEO PANELS
+         
         let anchor = AnchorEntity(anchor: anchors.first!)
-        anchor.addChild(ARVideoPanel.createVideoPanel(width: 16, height: 9, videoUrl: URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!))
+        anchor.addChild(ARVideoPanel.createVideoPanel(width: 1, height: 0.5, videoUrl: URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!))
         arView?.scene.addAnchor(anchor)
          */
+        
     }
     
     //https://stackoverflow.com/questions/45185555/scenekit-get-direction-of-camera

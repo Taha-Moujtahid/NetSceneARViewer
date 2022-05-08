@@ -51,6 +51,9 @@
             ReferencedContainer = "container:NetSceneARViewer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <DeviceSensorReplayFileReference
+         identifier = "../../AR-Session 3 hkm.mov">
+      </DeviceSensorReplayFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

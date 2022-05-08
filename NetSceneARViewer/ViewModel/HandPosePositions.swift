@@ -13,12 +13,20 @@ class HandPosePositions : ObservableObject{
     @Published var indexFingerTip = CGPoint(x: 0.5,y: 0.5)
     @Published var thumbTip = CGPoint(x: 0.5,y: 0.5)
     @Published var isGrabbing = false
+    var grabHandler : ()->Void = {}
+    
     func processFingers(){
         if( abs(indexFingerTip.x - thumbTip.x) < 30 &&
             abs(indexFingerTip.y - thumbTip.y) < 30) {
-            isGrabbing = true
+            DispatchQueue.main.async {
+                self.isGrabbing = true
+                self.grabHandler()
+            }
+            
         }else{
-            isGrabbing = false
+            DispatchQueue.main.async {
+                self.isGrabbing = false
+            }
         }
     }
 

@@ -20,18 +20,21 @@ struct HandDetectionHandler : VisionDetector{
         if let results = request.results?.first as? VNRecognizedPointsObservation {
             if let fingerTipPosition = try? results.recognizedPoint(forKey: VNHumanHandPoseObservation.JointName.indexTip.rawValue) {
                 if(fingerTipPosition.confidence > 0.5){
-                    
-                    HandPosePositions.shared.indexFingerTip =
-                    CGPoint(x: fingerTipPosition.location.y * UIScreen.main.bounds.width,
-                            y: fingerTipPosition.location.x * UIScreen.main.bounds.height - 50)
+                    DispatchQueue.main.async {
+                        HandPosePositions.shared.indexFingerTip =
+                        CGPoint(x: fingerTipPosition.location.x * UIScreen.main.bounds.width,
+                                y: fingerTipPosition.location.y * UIScreen.main.bounds.height - 50)
+                    }
                 }
             }
             
             if let thumbTipPosition = try? results.recognizedPoint(forKey: VNHumanHandPoseObservation.JointName.thumbTip.rawValue) {
                 if(thumbTipPosition.confidence > 0.5){
-                    HandPosePositions.shared.thumbTip =
-                    CGPoint(x: thumbTipPosition.y * UIScreen.main.bounds.width,
-                            y: thumbTipPosition.x * UIScreen.main.bounds.height - 50)
+                    DispatchQueue.main.async {
+                        HandPosePositions.shared.thumbTip =
+                        CGPoint(x: thumbTipPosition.x * UIScreen.main.bounds.width,
+                                y: thumbTipPosition.y * UIScreen.main.bounds.height - 50)
+                    }
                 }
             }
             

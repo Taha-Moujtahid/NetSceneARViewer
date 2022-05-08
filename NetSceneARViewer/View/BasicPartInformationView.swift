@@ -6,22 +6,19 @@
 //
 
 import SwiftUI
-import Charts
+import SwiftUICharts
 
 struct BasicPartInformationView: View {
     
     var body: some View {
         GeometryReader{ geometry in
             VStack(alignment: .leading){
-                Text("Part ID: XYZ!")
-                    .font(Font.title)
+                Text("PartID: SEGMENT_15")
+                    .font(Font.largeTitle).bold()
                     .foregroundColor(.white)
-                /*Chart(data: [0.1, 0.9, 0.1, 0.5, 0.4, 0.9, 0.1])
-                    .chartStyle(
-                        LineChartStyle(.quadCurve, lineColor: .white, lineWidth: 5)
-                    ).frame(width: geometry.size.width, height: geometry.size.height/5)*/
-                
-            }.frame(width: geometry.size.width, height: geometry.size.height).background(.blue)
+                    .padding()
+                LineChartView(data: [8,23,54,32,12,37,7,23,43], title: "Temperatur Level").padding()
+            }.frame(width: geometry.size.width, height: geometry.size.height)
         }.ignoresSafeArea()
     }
 }
